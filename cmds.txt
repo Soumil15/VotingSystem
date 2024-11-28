@@ -1,0 +1,28 @@
+***On PowerShell***
+
+To compile:
+truffle compile
+
+To Run Ganache:
+truffle migrate --network development --reset
+
+To start Truffle console:
+truffle console --network development
+
+
+***Inside Truffle console***
+
+To Deploy contract:
+const voting = await Voting.deployed();
+
+To confirm/check candidates:
+(await voting.candidates(0)).name;
+
+To Register voter in the system with Ganache (Register one of the Ganache accounts as a voter)
+await voting.registerVoter({ from: "0xFf2EAd013773809fEF5D4dAE960C35BAf122dD3C" }); //The "0xFf... is the address of one of the accounts from Ganache workspace"
+
+To Cast a Vote for a Specific Candidate by index:
+await voting.castVote(0, { from: "0xFf2EAd013773809fEF5D4dAE960C35BAf122dD3C" }); // Vote for "Meet"
+
+To Check Vote Count for a specific Candidate:
+(await voting.getVoteCount(0)).toString();

@@ -1,0 +1,130 @@
+/* Global styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1e1e2f;
+    color: #e0e0e0;
+}
+
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Navbar styling */
+.navbar {
+    width: 100%;
+    padding: 15px 0;
+    background-color: #2a2a3c;
+    text-align: center;
+    color: #f4f4f9;
+    border-bottom: 1px solid #444455;
+}
+
+.navbar h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Candidate section styling */
+.candidate-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+}
+
+.candidate-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #39395c;
+    /* Lighter tone for the card */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    transition: transform 0.2s, background-color 0.3s;
+    width: 150px;
+    color: #f4f4f9;
+}
+
+.candidate-card:hover {
+    background-color: #4d4d6f;
+    /* Highlight effect on hover */
+    transform: scale(1.05);
+}
+
+.candidate-photo {
+    background-color: #5c5c7d;
+    /* Light background for the photo */
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.vote-button {
+    background-color: #68689d;
+    /* Lightened button color for better contrast */
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 14px;
+}
+
+.vote-button:hover {
+    background-color: #7c7cb3;
+    /* Slightly lighter shade on hover */
+}
+
+/* Footer (Voter Information) styling */
+.voter-info {
+    width: 100%;
+    background-color: #2a2a3c;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    font-size: 14px;
+    border-top: 1px solid #444455;
+}
+
+.info-text,
+.status {
+    flex: 1;
+}
+
+.info-text div,
+.status div {
+    margin-bottom: 6px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.voted {
+    background-color: #76c7c0;
+}
+
+.pending {
+    background-color: #e86d6d;
+}
