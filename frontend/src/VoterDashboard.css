@@ -1,0 +1,203 @@
+/* Global styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1e1e2f;
+    color: #e0e0e0;
+}
+
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 120px;
+}
+
+/* Navbar styling */
+.navbar {
+    width: 100%;
+    padding: 20px 60px;
+    background-color: #1a1b2e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+    border-bottom: 1px solid #2a2b3d;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar h1 {
+    margin: 0;
+    margin-left: 15px;
+    font-size: 25px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.logout-button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    margin-right: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+/* Candidate section styling */
+.candidate-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin: 0;
+    min-height: calc(100vh - 250px);
+}
+
+.candidate-card:nth-child(1) {
+    background: linear-gradient(145deg, #2c3e50, #3498db);
+    box-shadow: 0 8px 16px rgba(44, 62, 80, 0.2);
+}
+
+.candidate-card:nth-child(2) {
+    background: linear-gradient(145deg, #27ae60, #2ecc71);
+    box-shadow: 0 8px 16px rgba(39, 174, 96, 0.2);
+}
+
+.candidate-card:nth-child(3) {
+    background: linear-gradient(145deg, #8e44ad, #9b59b6);
+    box-shadow: 0 8px 16px rgba(142, 68, 173, 0.2);
+}
+
+.candidate-card:nth-child(4) {
+    background: linear-gradient(145deg, #c0392b, #e74c3c);
+    box-shadow: 0 8px 16px rgba(192, 57, 43, 0.2);
+}
+
+.candidate-card {
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    width: 220px;
+    transition: transform 0.3s ease;
+}
+
+.candidate-card:hover {
+    transform: translateY(-5px);
+}
+
+.candidate-photo {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.candidate-photo span {
+    color: white;
+    font-size: 1.2em;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.vote-button {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #2b2d42;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.vote-button:hover:not(:disabled) {
+    background-color: white;
+    transform: scale(1.05);
+}
+
+.vote-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Footer (Voter Information) styling */
+.voter-info {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #2a2a3c;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    font-size: 14px;
+    border-top: 1px solid #444455;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.info-text {
+    flex: 2;
+    color: white;
+    line-height: 1.5;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-right: 650px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-left: 8px;
+}
+
+.status-dot.voted {
+    background-color: #4CAF50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+.status-dot.pending {
+    background-color: #f44336;
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+}
+
+.vote-count {
+    margin: 15px 0;
+    font-size: 1.2em;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
