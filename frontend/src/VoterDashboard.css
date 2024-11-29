@@ -73,17 +73,17 @@ body {
 }
 
 .candidate-card:nth-child(2) {
-    background: linear-gradient(145deg, #27ae60, #2ecc71);
+    background: linear-gradient(145deg, #0d5a2d, #6fe6a1);
     box-shadow: 0 8px 16px rgba(39, 174, 96, 0.2);
 }
 
 .candidate-card:nth-child(3) {
-    background: linear-gradient(145deg, #8e44ad, #9b59b6);
+    background: linear-gradient(145deg, #4d1863, #cb97df);
     box-shadow: 0 8px 16px rgba(142, 68, 173, 0.2);
 }
 
 .candidate-card:nth-child(4) {
-    background: linear-gradient(145deg, #c0392b, #e74c3c);
+    background: linear-gradient(145deg, #6f1d13, #d97f75);
     box-shadow: 0 8px 16px rgba(192, 57, 43, 0.2);
 }
 
