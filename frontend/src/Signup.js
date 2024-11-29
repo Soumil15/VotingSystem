@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './Signup.css';
 
 function Signup() {
   const [values, setValues] = useState({
@@ -62,106 +63,116 @@ function Signup() {
         }, 3000);
       }
     } catch (error) {
-      console.error(error);
-      setMessage('Error signing up. Please try again later.');
+      console.error('Signup error:', error);
+      setMessage(error.response?.data?.error || error.response?.data?.details || 'Error signing up. Please try again later.');
+      if (error.response?.status === 400) {
+        // Handle validation errors
+        if (error.response.data.error === 'Voter ID or email already exists') {
+          setErrors({
+            ...errors,
+            voter_id: 'This Voter ID or email is already registered',
+            email: 'This Voter ID or email is already registered'
+          });
+        }
+      }
     }
   };
   
 
   return (
-    <div className='d-flex justify-content-center align-items-center bg-dark vh-100'>
-      <div className='bg-white p-3 rounded w-25'>
-        <h2>Sign-Up</h2>
-
-        {message && (
-          <div className={`alert ${message.includes('successfully') ? 'alert-success' : 'alert-danger'} text-center`}>
-            {message}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className='mb-3'>
-            <label htmlFor='voter_id'><strong>Voter ID</strong></label>
-            <input
-              type='text'
-              placeholder='Enter Voter ID'
-              name='voter_id'
-              value={values.voter_id}
-              onChange={handleInput}
-              className='form-control rounded-0'
-            />
-            {errors.voter_id && <span className='text-danger'>{errors.voter_id}</span>}
-          </div>
-
-          <div className='mb-3'>
-            <label htmlFor='name'><strong>Name</strong></label>
-            <input
-              type='text'
-              placeholder='Enter Name'
-              name='name'
-              value={values.name}
-              onChange={handleInput}
-              className='form-control rounded-0'
-            />
-            {errors.name && <span className='text-danger'>{errors.name}</span>}
-          </div>
-
-          <div className='mb-3'>
-            <label htmlFor='email'><strong>Email</strong></label>
-            <input
-              type='email'
-              placeholder='Enter Email'
-              name='email'
-              value={values.email}
-              onChange={handleInput}
-              className='form-control rounded-0'
-            />
-            {errors.email && <span className='text-danger'>{errors.email}</span>}
-          </div>
-
-          <div className='mb-3'>
-            <label htmlFor='address'><strong>Address</strong></label>
-            <input
-              type='text'
-              placeholder='Enter Address'
-              name='address'
-              value={values.address}
-              onChange={handleInput}
-              className='form-control rounded-0'
-            />
-            {errors.address && <span className='text-danger'>{errors.address}</span>}
-          </div>
-
-          <div className='mb-3'>
-            <label htmlFor='phone_number'><strong>Phone Number</strong></label>
-            <input
-              type='text'
-              placeholder='Enter Phone Number'
-              name='phone_number'
-              value={values.phone_number}
-              onChange={handleInput}
-              className='form-control rounded-0'
-            />
-            {errors.phone_number && <span className='text-danger'>{errors.phone_number}</span>}
-          </div>
-
-          <div className='mb-3'>
-            <label htmlFor='password'><strong>Password</strong></label>
-            <input
-              type='password'
-              placeholder='Enter Password'
-              name='password'
-              value={values.password}
-              onChange={handleInput}
-              className='form-control rounded-0'
-            />
-            {errors.password && <span className='text-danger'>{errors.password}</span>}
-          </div>
-
-          <button type='submit' className='btn btn-success w-100'><strong>Sign up</strong></button>
-          <p>You agree to our terms and policy</p>
-          <Link to="/" className='btn btn-default border w-100 bg-dark text-light'>Login</Link>
-        </form>
+    <div className='signup-page'>
+      <div className='signup-container'>
+        <div className='signup-box'>
+          <h2>Sign-Up</h2>
+          {message && (
+            <div className="auth-error">
+              {message}
+            </div>
+          )}
+          <form onSubmit={handleSubmit}>
+            <div className='form-group'>
+              <label htmlFor='voter_id'>Voter ID</label>
+              <input
+                type='text'
+                placeholder='Enter Voter ID'
+                name='voter_id'
+                value={values.voter_id}
+                onChange={handleInput}
+                className='auth-input'
+              />
+              {errors.voter_id && <span className='error-message'>{errors.voter_id}</span>}
+            </div>
+            <div className='form-group'>
+              <label htmlFor='name'>Name</label>
+              <input
+                type='text'
+                placeholder='Enter Name'
+                name='name'
+                value={values.name}
+                onChange={handleInput}
+                className='auth-input'
+              />
+              {errors.name && <span className='error-message'>{errors.name}</span>}
+            </div>
+            <div className='form-group'>
+              <label htmlFor='email'>Email</label>
+              <input
+                type='email'
+                placeholder='Enter Email'
+                name='email'
+                value={values.email}
+                onChange={handleInput}
+                className='auth-input'
+              />
+              {errors.email && <span className='error-message'>{errors.email}</span>}
+            </div>
+            <div className='form-group'>
+              <label htmlFor='address'>Address</label>
+              <input
+                type='text'
+                placeholder='Enter Address'
+                name='address'
+                value={values.address}
+                onChange={handleInput}
+                className='auth-input'
+              />
+              {errors.address && <span className='error-message'>{errors.address}</span>}
+            </div>
+            <div className='form-group'>
+              <label htmlFor='phone_number'>Phone Number</label>
+              <input
+                type='text'
+                placeholder='Enter Phone Number'
+                name='phone_number'
+                value={values.phone_number}
+                onChange={handleInput}
+                className='auth-input'
+              />
+              {errors.phone_number && <span className='error-message'>{errors.phone_number}</span>}
+            </div>
+            <div className='form-group'>
+              <label htmlFor='password'>Password</label>
+              <input
+                type='password'
+                placeholder='Enter Password'
+                name='password'
+                value={values.password}
+                onChange={handleInput}
+                className='auth-input'
+              />
+              {errors.password && <span className='error-message'>{errors.password}</span>}
+            </div>
+            <div className="signup-button-container">
+                <button type='submit' className='signup-submit-button'>
+                    Sign up
+                </button>
+                <Link to="/" className='signup-login-button'>
+                    Login
+                </Link>
+            </div>
+            <p className='signup-terms-text'>You agree to our terms and policy</p>
+          </form>
+        </div>
       </div>
     </div>
   );

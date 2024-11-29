@@ -1,0 +1,78 @@
+.signup-page {
+    min-height: 100vh;
+    background-color: #1e1e2f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.signup-container {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+}
+
+.signup-box {
+    background-color: #2a2a3c;
+    padding: 25px 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.signup-box form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    align-items: start;
+}
+
+.signup-box h2 {
+    grid-column: 1 / -1;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.signup-button-container {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.signup-submit-button,
+.signup-login-button {
+    width: 300px;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.signup-submit-button {
+    background: linear-gradient(145deg, #27ae60, #2ecc71);
+    color: white;
+}
+
+.signup-login-button {
+    background: #1e1e2f;
+    color: white;
+    text-decoration: none;
+}
+
+.signup-terms-text {
+    grid-column: 1 / -1;
+    margin: 15px 0;
+    text-align: center;
+    color: #e0e0e0;
+    font-size: 14px;
+}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './Auth.css';
+import './Login.css';
 
 function Login() {
   const [values, setValues] = useState({
@@ -53,45 +55,46 @@ function Login() {
   };
 
   return (
-    <div className='d-flex justify-content-center align-items-center bg-dark vh-100'>
-      <div className='bg-white p-3 rounded w-25'>
-        <h2>Login</h2>
-
-        {/* Display error message */}
-        {errorMessage && (
-          <div className="alert alert-danger text-center">
-            {errorMessage}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className='mb-3'>
-            <label htmlFor='voter_id'><strong>Voter ID</strong></label>
-            <input
-              type='text'
-              placeholder='Enter Voter ID'
-              name='voter_id'
-              value={values.voter_id}
-              onChange={handleInput}
-              className='form-control rounded-0'
-            />
-          </div>
-          <div className='mb-3'>
-            <label htmlFor='password'><strong>Password</strong></label>
-            <input
-              type='password'
-              placeholder='Enter Password'
-              name='password'
-              value={values.password}
-              onChange={handleInput}
-              className='form-control rounded-0'
-            />
-          </div>
-          <button type='submit' className='btn btn-success w-100'>
-            <strong>Login</strong>
-          </button>
-          <Link to="/signup" className='btn btn-default border w-100 bg-dark text-light'>Create Account</Link>
-        </form>
+    <div className='login-page'>
+      <div className='login-container'>
+        <div className='login-box'>
+          <h2>Login</h2>
+          {errorMessage && (
+            <div className="auth-error">
+              {errorMessage}
+            </div>
+          )}
+          <form onSubmit={handleSubmit}>
+            <div className='form-group'>
+              <label htmlFor='voter_id'>Voter ID</label>
+              <input
+                type='text'
+                placeholder='Enter Voter ID'
+                name='voter_id'
+                value={values.voter_id}
+                onChange={handleInput}
+                className='auth-input'
+              />
+            </div>
+            <div className='form-group'>
+              <label htmlFor='password'>Password</label>
+              <input
+                type='password'
+                placeholder='Enter Password'
+                name='password'
+                value={values.password}
+                onChange={handleInput}
+                className='auth-input'
+              />
+            </div>
+            <button type='submit' className='login-button'>
+              Login
+            </button>
+            <Link to="/signup" className='create-account-button'>
+              Create Account
+            </Link>
+          </form>
+        </div>
       </div>
     </div>
   );

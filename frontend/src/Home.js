@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './VoterDashboard.css';
 import { initWeb3 } from './web3';
 import axios from 'axios';
+import { Web3 } from 'web3';
 
 const Home = () => {
   const [candidates, setCandidates] = useState([]);
@@ -28,12 +29,17 @@ const Home = () => {
                 setCandidates(candidatesResponse.data);
             }
 
-            // Fetch voter info from backend
+            // Fetch voter info from backend - Changed from POST to GET
             const voterId = localStorage.getItem("voter_id");
             if (voterId) {
-                const response = await axios.post('http://localhost:8081/voter-info', { voter_id: voterId });
+                const response = await axios.get(`http://localhost:8081/voter-info?voter_id=${voterId}`);
                 if (response.status === 200) {
-                    setVoterInfo(response.data);
+                    setVoterInfo({
+                        name: response.data.name || "Loading...",
+                        voter_id: response.data.voter_id || "Loading...",
+                        address: response.data.address || "Loading...",
+                        phone_number: response.data.phone_number || "Loading...",
+                    });
                     setVoteFlag(response.data.has_voted || false);
                 }
             }
@@ -50,6 +56,28 @@ const Home = () => {
     };
 
     init();
+  }, []);
+
+  useEffect(() => {
+    const validateSession = async () => {
+        const voterId = localStorage.getItem("voter_id");
+        if (voterId) {
+            try {
+                const response = await axios.get(`http://localhost:8081/voter-info?voter_id=${voterId}`);
+                if (response.status !== 200) {
+                    localStorage.clear();
+                    window.location.href = "http://localhost:3000/login";
+                }
+            } catch (error) {
+                localStorage.clear();
+                window.location.href = "http://localhost:3000/login";
+            }
+        } else {
+            window.location.href = "http://localhost:3000/login";
+        }
+    };
+
+    validateSession();
   }, []);
 
   const fetchVoteCounts = async () => {
@@ -109,30 +137,51 @@ const handleVote = async (candidateId) => {
             return;
         }
 
-        // Get voter's MetaMask account
+        // Initialize Web3 first
+        const web3Instance = new Web3('http://127.0.0.1:7545');
+        
+        // Get voter's account address
         const voterResponse = await axios.get(`http://localhost:8081/voter-info?voter_id=${voterId}`);
         if (!voterResponse.data.account_address) {
             alert("No MetaMask account found for this voter.");
             return;
         }
 
-        const voterAccount = voterResponse.data.account_address;
-        const { votingInstance } = await initWeb3();
+        // Clean and format the address
+        let voterAccount = voterResponse.data.account_address;
+        if (!voterAccount.startsWith('0x')) {
+            voterAccount = '0x' + voterAccount;
+        }
+        voterAccount = web3Instance.utils.toChecksumAddress(voterAccount);
+        console.log("Voting with account:", voterAccount);
 
-        // First register the voter if not already registered
+        // Initialize contract
+        const { votingInstance } = await initWeb3();
+        
         try {
-            await votingInstance.methods.registerVoter(voterAccount).send({ from: voterAccount });
+            await votingInstance.methods.registerVoter(voterAccount)
+                .send({ 
+                    from: voterAccount,
+                    gas: 3000000
+                });
+            console.log("Voter registered successfully");
         } catch (error) {
-            // Ignore error if already registered
             if (!error.message.includes("already registered")) {
                 throw error;
             }
+            console.log("Voter already registered");
         }
 
-        // Then cast the vote
-        await votingInstance.methods.castVote(candidateId).send({ from: voterAccount });
+        // Cast vote on blockchain
+        const transaction = await votingInstance.methods.castVote(candidateId)
+            .send({ 
+                from: voterAccount,
+                gas: 3000000
+            });
 
-        // Update MySQL database to mark user as voted
+        console.log("Vote transaction:", transaction);
+
+        // Record vote in database
         const response = await axios.post('http://localhost:8081/vote', {
             voter_id: voterId,
             candidate_id: candidateId
@@ -145,7 +194,7 @@ const handleVote = async (candidateId) => {
         }
     } catch (error) {
         console.error("Error during voting:", error);
-        alert("Failed to cast vote. Please try again.");
+        alert("Failed to cast vote. Please try again: " + error.message);
     }
 };
 

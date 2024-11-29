@@ -27,7 +27,58 @@ db.connect((err) => {
 });
 
 // Initialize Web3
-const web3 = new Web3('http://127.0.0.1:7545');
+let web3;
+const initWeb3 = async () => {
+    web3 = new Web3('http://127.0.0.1:7545');
+    
+    try {
+        // Get accounts from database
+        const [accounts] = await db.promise().query(
+            'SELECT account_address, private_key FROM metamask_accounts WHERE status = "available" OR status = "assigned"'
+        );
+        
+        if (accounts.length === 0) {
+            throw new Error('No accounts found in database');
+        }
+        
+        // Clear existing accounts
+        web3.eth.accounts.wallet.clear();
+        
+        // Add accounts to web3 wallet
+        accounts.forEach(account => {
+            const privateKey = account.private_key.startsWith('0x') ? 
+                account.private_key : 
+                '0x' + account.private_key;
+            web3.eth.accounts.wallet.add(privateKey);
+        });
+        
+        return web3;
+    } catch (error) {
+        console.error('Error initializing web3:', error);
+        throw error;
+    }
+};
+
+// Initialize web3 and contract
+(async () => {
+    try {
+        web3 = await initWeb3();
+        const votingContract = new web3.eth.Contract(contractABI, contractAddress);
+        
+        // Get first account from database for verification
+        const [firstAccount] = await db.promise().query(
+            'SELECT account_address FROM metamask_accounts WHERE status = "available" OR status = "assigned" LIMIT 1'
+        );
+        
+        if (firstAccount.length > 0) {
+            console.log("Connected to database, using account:", firstAccount[0].account_address);
+        }
+        
+        // Rest of your contract verification code...
+    } catch (error) {
+        console.error('Initialization failed:', error);
+    }
+})();
 
 // Contract ABI and address
 const contractABI = [
@@ -37,27 +88,17 @@ const contractABI = [
         "type": "constructor"
     },
     {
-        "anonymous": false,
-        "inputs": [
-            {"indexed": false, "internalType": "address", "name": "voter", "type": "address"},
-            {"indexed": false, "internalType": "uint256", "name": "candidateIndex", "type": "uint256"}
-        ],
-        "name": "VoteCast",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {"indexed": false, "internalType": "address", "name": "voter", "type": "address"}
-        ],
-        "name": "VoterRegistered",
-        "type": "event"
-    },
-    {
         "inputs": [{"internalType": "uint256", "name": "candidateIndex", "type": "uint256"}],
         "name": "castVote",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getCandidateCount",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -71,13 +112,6 @@ const contractABI = [
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "getCandidateCount",
-        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
         "inputs": [{"internalType": "address", "name": "voter", "type": "address"}],
         "name": "registerVoter",
         "outputs": [],
@@ -86,40 +120,34 @@ const contractABI = [
     }
 ];
 
-const contractAddress = '0x2b3A9398e9a1d5a3Ea10484087AF9b966DcECB45';
-const votingContract = new web3.eth.Contract(contractABI, contractAddress);
+const contractAddress = '0xaF9D0E71CAa43C2E0cDDeab7b563e694D40F1030';
 
 // After contract initialization
 console.log('Contract address:', contractAddress);
 
-// Verify contract connection and get candidate data
+// After web3 initialization
+const getAvailableAccounts = async () => {
+    try {
+        const [accounts] = await db.promise().query(
+            'SELECT account_address FROM metamask_accounts WHERE status = "available"'
+        );
+        return accounts.map(acc => acc.account_address);
+    } catch (error) {
+        console.error('Error fetching accounts from database:', error);
+        return [];
+    }
+};
+
+// Modify the verification code
 (async () => {
     try {
-        const accounts = await web3.eth.getAccounts();
-        console.log("Connected to Ganache, first account:", accounts[0]);
-        
-        // Verify contract code exists at address
-        const code = await web3.eth.getCode(contractAddress);
-        if (code === '0x') {
-            throw new Error('No contract deployed at this address');
+        const dbAccounts = await getAvailableAccounts();
+        if (dbAccounts.length === 0) {
+            throw new Error('No available accounts in database');
         }
+        console.log("Connected to database, first available account:", dbAccounts[0]);
         
-        // Test contract methods
-        const count = await votingContract.methods.getCandidateCount().call();
-        console.log('Number of candidates:', count);
-        
-        // Get all candidates
-        const candidatesData = [];
-        for (let i = 0; i < count; i++) {
-            const candidate = await votingContract.methods.getCandidateDetails(i).call();
-            candidatesData.push({
-                name: candidate.name,
-                voteCount: candidate.voteCount
-            });
-            console.log(`Candidate ${i}:`, candidatesData[i]);
-        }
-        
-        console.log('All candidates:', candidatesData);
+        // Rest of your verification code...
     } catch (error) {
         console.error('Contract verification failed:', error);
         console.error('Error details:', error.message);
@@ -157,61 +185,88 @@ app.post('/signup', async (req, res) => {
         const [existingUsers] = await db.promise().query(checkUserQuery, [voter_id, email]);
 
         if (existingUsers.length > 0) {
-            return res.status(400).json({ error: 'Voter ID or email already exists' });
+            return res.status(400).json({ 
+                error: 'Voter ID or email already exists',
+                details: 'Please use different credentials'
+            });
         }
 
-        // Get available MetaMask account
-        const getAccountQuery = 'SELECT account_address FROM metamask_accounts WHERE voter_id IS NULL AND status = "available" LIMIT 1';
-        const [availableAccounts] = await db.promise().query(getAccountQuery);
+        // Start transaction
+        await db.promise().beginTransaction();
 
-        if (availableAccounts.length === 0) {
-            return res.status(400).json({ error: 'No available MetaMask accounts' });
+        try {
+            // Get available MetaMask account
+            const getAccountQuery = 'SELECT account_address FROM metamask_accounts WHERE status = "available" AND voter_id IS NULL LIMIT 1';
+            const [availableAccounts] = await db.promise().query(getAccountQuery);
+
+            if (availableAccounts.length === 0) {
+                await db.promise().rollback();
+                return res.status(400).json({ error: 'No available MetaMask accounts' });
+            }
+
+            // Insert new user
+            const insertUserQuery = `
+                INSERT INTO users (voter_id, name, email, address, phone_number, password, has_voted)
+                VALUES (?, ?, ?, ?, ?, ?, false)
+            `;
+            await db.promise().query(insertUserQuery, [voter_id, name, email, address, phone_number, password]);
+
+            // Assign MetaMask account to user
+            const accountAddress = availableAccounts[0].account_address;
+            const updateAccountQuery = 'UPDATE metamask_accounts SET voter_id = ?, status = "assigned" WHERE account_address = ?';
+            await db.promise().query(updateAccountQuery, [voter_id, accountAddress]);
+
+            // Commit transaction
+            await db.promise().commit();
+
+            res.status(200).json({
+                message: 'User registered successfully',
+                account: accountAddress
+            });
+        } catch (error) {
+            await db.promise().rollback();
+            throw error;
         }
-
-        // Insert new user
-        const insertUserQuery = `
-            INSERT INTO users (voter_id, name, email, address, phone_number, password, has_voted)
-            VALUES (?, ?, ?, ?, ?, ?, false)
-        `;
-        await db.promise().query(insertUserQuery, [voter_id, name, email, address, phone_number, password]);
-
-        // Assign MetaMask account to user
-        const accountAddress = availableAccounts[0].account_address;
-        const updateAccountQuery = 'UPDATE metamask_accounts SET voter_id = ?, status = "assigned" WHERE account_address = ?';
-        await db.promise().query(updateAccountQuery, [voter_id, accountAddress]);
-
-        res.status(200).json({
-            message: 'User registered successfully',
-            account: accountAddress
-        });
-
     } catch (error) {
         console.error('Signup error:', error);
-        res.status(500).json({ error: 'Internal server error during signup' });
+        res.status(500).json({ 
+            error: 'Internal server error during signup',
+            details: error.message 
+        });
     }
 });
 
 // Voter Info Endpoint
-app.post('/voter-info', (req, res) => {
-    const { voter_id } = req.body;
+app.get('/voter-info', async (req, res) => {
+    const voterId = req.query.voter_id;
     
-    if (!voter_id) {
+    if (!voterId) {
         return res.status(400).json({ error: 'Voter ID is required' });
     }
 
-    const query = 'SELECT name, voter_id, address, phone_number, has_voted FROM users WHERE voter_id = ?';
-    db.query(query, [voter_id], (err, results) => {
-        if (err) {
-            console.error('Error fetching voter info:', err);
-            return res.status(500).json({ error: 'Database query failed' });
-        }
+    try {
+        const [results] = await db.promise().query(`
+            SELECT u.name, u.voter_id, u.address, u.phone_number, u.has_voted, 
+                   CASE 
+                       WHEN m.account_address NOT LIKE '0x%' 
+                       THEN CONCAT('0x', m.account_address)
+                       ELSE m.account_address
+                   END as account_address
+            FROM users u
+            LEFT JOIN metamask_accounts m ON u.voter_id = m.voter_id
+            WHERE u.voter_id = ?
+        `, [voterId]);
 
         if (results.length === 0) {
             return res.status(404).json({ error: 'Voter not found' });
         }
 
+        console.log("Voter info found:", results[0]);
         res.json(results[0]);
-    });
+    } catch (err) {
+        console.error('Error fetching voter info:', err);
+        res.status(500).json({ error: 'Database query failed' });
+    }
 });
 
 // Voting Endpoint

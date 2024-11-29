@@ -9682,12 +9682,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x2b3A9398e9a1d5a3Ea10484087AF9b966DcECB45",
-      "transactionHash": "0xc2fbf4a96cbb721b6a218d891a24486c0ff73983c1b351fe21669548119871d6"
+      "address": "0xaF9D0E71CAa43C2E0cDDeab7b563e694D40F1030",
+      "transactionHash": "0xc80fbba5dd7c1bdad6992b66776df56d58cc15de40f8cdefacbf40a7f12808b0"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-11-28T07:11:37.156Z",
+  "updatedAt": "2024-11-29T00:50:57.771Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

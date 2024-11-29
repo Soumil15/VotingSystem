@@ -1,5 +1,6 @@
 import Web3 from 'web3';
 import VotingContract from './contracts/Voting.json';
+import axios from 'axios';
 
 let web3; // Declare web3 variable globally
 let votingInstance; // Declare votingInstance globally
@@ -51,16 +52,11 @@ const loadContract = async () => {
 // Full initialization of Web3 and Voting contract
 const initWeb3 = async () => {
   try {
-    // Initialize Web3
-    await getWeb3();
-
-    // Load the Voting contract
-    const contractInstance = await loadContract();
-
-    // Return initialized Web3 and contract instance
-    return { web3, votingInstance: contractInstance };
+    const web3Instance = await getWeb3();
+    const votingInstance = await loadContract();
+    return { web3: web3Instance, votingInstance };
   } catch (error) {
-    console.error("Error initializing Web3 and contract:", error);
+    console.error("Failed to initialize Web3:", error);
     throw error;
   }
 };
@@ -68,20 +64,26 @@ const initWeb3 = async () => {
 // Function to get the current account (useful for login or vote casting)
 const getCurrentAccount = async () => {
   try {
-    if (!web3) {
-      await getWeb3();
+    const web3Instance = new Web3('http://127.0.0.1:7545'); // Use Ganache URL instead of window.ethereum
+    const voterId = localStorage.getItem("voter_id");
+    if (!voterId) {
+      throw new Error("No voter ID found");
     }
 
-    const accounts = await web3.eth.getAccounts();
-    if (accounts.length === 0) {
-      throw new Error("No accounts found. Make sure MetaMask or Ganache is configured.");
+    const response = await axios.get(`http://localhost:8081/voter-info?voter_id=${voterId}`);
+    if (!response.data?.account_address) {
+      throw new Error("No account address found for this voter");
     }
 
-    console.log("Current account:", accounts[0]);
-    return accounts[0]; // Return the first account (default account)
+    // Clean and format the address
+    let address = response.data.account_address;
+    if (!address.startsWith('0x')) {
+      address = '0x' + address;
+    }
+    return web3Instance.utils.toChecksumAddress(address);
   } catch (error) {
-    console.error("Error fetching accounts:", error);
-    throw new Error("Account Fetching Error");
+    console.error("Error fetching account:", error);
+    throw new Error("Account Fetching Error: " + error.message);
   }
 };
 
