@@ -1,0 +1,159 @@
+# Blockchain Voting System
+
+This project is a blockchain-based voting system that leverages Ethereum smart contracts to ensure secure and transparent voting. The system is built using Node.js, Express, MySQL, and React, with Web3.js for blockchain interactions.
+
+## Prerequisites
+
+- Node.js and npm
+- Truffle Suite
+- Ganache
+- MySQL
+
+## Setup Instructions
+
+### Backend Setup
+
+1. **Clone the Repository:**
+
+   ```bash
+   git clone <repository-url>
+   cd VotingSystem2-push2
+   ```
+
+2. **Install Dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Configure MySQL Database:**
+
+   Ensure you have a MySQL server running and create a database named `blockchain_voting`. Update the database credentials in `backend/server.js`:
+
+   ```javascript:VotingSystem2-push2/backend/server.js
+   startLine: 13
+   endLine: 18
+   ```
+
+4. **Compile and Deploy Smart Contracts:**
+
+   Open PowerShell and navigate to the project directory. Run the following commands:
+
+   ```bash
+   truffle compile
+   truffle migrate --network development --reset
+   ```
+
+5. **Start the Backend Server:**
+
+   ```bash
+   node backend/server.js
+   ```
+
+### Frontend Setup
+
+1. **Navigate to the Frontend Directory:**
+
+   ```bash
+   cd frontend
+   ```
+
+2. **Install Frontend Dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Start the Frontend Server:**
+
+   ```bash
+   npm start
+   ```
+
+## Usage
+
+### Interacting with the Smart Contract
+
+1. **Start Truffle Console:**
+
+   ```bash
+   truffle console --network development
+   ```
+
+2. **Deploy Contract:**
+
+   ```javascript
+   const voting = await Voting.deployed();
+   ```
+
+3. **Register a Voter:**
+
+   Use one of the Ganache accounts to register a voter:
+
+   ```javascript
+   await voting.registerVoter({ from: "0xFf2EAd013773809fEF5D4dAE960C35BAf122dD3C" });
+   ```
+
+4. **Cast a Vote:**
+
+   Cast a vote for a candidate by index:
+
+   ```javascript
+   await voting.castVote(0, { from: "0xFf2EAd013773809fEF5D4dAE960C35BAf122dD3C" });
+   ```
+
+5. **Check Vote Count:**
+
+   Check the vote count for a specific candidate:
+
+   ```javascript
+   (await voting.getVoteCount(0)).toString();
+   ```
+
+### API Endpoints
+
+- **Login:**
+
+  ```http
+  POST /login
+  ```
+
+  - Request Body: `{ "voter_id": "your_voter_id", "password": "your_password" }`
+
+- **Vote:**
+
+  ```http
+  POST /vote
+  ```
+
+  - Request Body: `{ "voter_id": "your_voter_id", "candidate_id": "candidate_index" }`
+
+## Key Components
+
+- **Backend:**
+
+  - `server.js`: Handles API requests and interacts with the MySQL database and Ethereum blockchain.
+
+  ```javascript:VotingSystem2-push2/backend/server.js
+  startLine: 1
+  endLine: 306
+  ```
+
+- **Frontend:**
+
+  - `web3.js`: Manages Web3 and contract interactions.
+
+  ```javascript:VotingSystem2-push2/frontend/src/web3.js
+  startLine: 1
+  endLine: 88
+  ```
+
+- **Smart Contract:**
+
+  - `Voting.json`: Contains the ABI and contract details.
+
+  ```json:VotingSystem2-push2/frontend/src/contracts/Voting.json
+  startLine: 1
+  endLine: 167
+  ```
+
